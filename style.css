@@ -1,1 +1,93 @@
 /* -_- */
+* {
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+
+:root {
+}
+
+.container {
+  width: 100%;
+  height: 100dvh;
+  background: red;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.pokemonContainer {
+  display: grid;
+  width: 80%;
+  height: 80%;
+  border: 1px sandybrown solid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.pokemon1,
+.pokemon2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pokeCard {
+  display: flex;
+}
+
+.card {
+  height: 500px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 8px solid orange;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.card * {
+  margin-bottom: 8px;
+}
+
+.stats {
+  height: 500px;
+  width: 200px;
+  border: 1px solid white;
+}
+
+.card > .info {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.card > .img {
+  width: 100%;
+  height: 250px;
+  /* border: 1px solid black; */
+  border-radius: 8px;
+  background: whitesmoke;
+}
+
+.img > img {
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+}
+
+.attacks > .attack {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.card > .measurments {
+  display: flex;
+  justify-content: space-between;
+  justify-self: flex-end;
+}
