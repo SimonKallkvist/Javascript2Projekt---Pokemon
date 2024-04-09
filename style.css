@@ -7,8 +7,8 @@
   box-sizing: border-box;
 }
 
-:root {
-}
+/* :root {
+} */
 
 .container {
   width: 100%;
@@ -28,8 +28,7 @@
   border: 1px sandybrown solid;
   grid-template-columns: repeat(2, 1fr);
 }
-.pokemon1,
-.pokemon2 {
+.pokemon {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -37,6 +36,7 @@
 
 .pokeCard {
   display: flex;
+  align-items: flex-end;
 }
 
 .card {
@@ -52,12 +52,21 @@
 
 .card * {
   margin-bottom: 8px;
+  text-transform: capitalize;
 }
 
 .stats {
-  height: 500px;
+  height: auto;
   width: 200px;
-  border: 1px solid white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: whitesmoke;
+  padding: 24px 8px;
+}
+
+.stats > progress {
+  margin-bottom: 8px;
 }
 
 .card > .info {
