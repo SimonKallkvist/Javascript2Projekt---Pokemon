@@ -7,13 +7,78 @@
   box-sizing: border-box;
 }
 
-/* :root {
-} */
+.btn {
+  background: black;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  background: white;
+  color: black;
+}
+
+.water {
+  background: rgb(34, 193, 195);
+  background: linear-gradient(
+    315deg,
+    rgba(34, 193, 195, 1) 0%,
+    rgba(45, 98, 253, 1) 100%
+  );
+}
+.fire {
+  background: rgb(255, 233, 26);
+  background: linear-gradient(
+    315deg,
+    rgba(255, 233, 26, 1) 0%,
+    rgba(240, 58, 3, 1) 100%
+  );
+}
+.grass {
+  background: rgb(123, 255, 26);
+  background: linear-gradient(
+    315deg,
+    rgba(123, 255, 26, 1) 0%,
+    rgba(0, 131, 33, 1) 100%
+  );
+}
+.electric {
+  background: rgb(255, 248, 100);
+  background: linear-gradient(
+    315deg,
+    rgba(255, 248, 100, 1) 0%,
+    rgba(194, 192, 0, 1) 100%
+  );
+}
+.normal {
+  background: rgb(156, 156, 156);
+  background: linear-gradient(
+    315deg,
+    rgba(156, 156, 156, 1) 0%,
+    rgba(46, 46, 46, 1) 100%
+  );
+}
+.generic {
+  background: rgb(204, 100, 255);
+  background: linear-gradient(
+    315deg,
+    rgba(204, 100, 255, 1) 0%,
+    rgba(91, 0, 194, 1) 100%
+  );
+}
 
 .container {
   width: 100%;
   height: 100dvh;
-  background: red;
+  background-image: url('https://fs-prod-cdn.nintendo-europe.com/media/images/10_share_images/games_15/nintendo_7/SI_N64_PokemonStadium_image1600w.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -45,14 +110,36 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 8px solid orange;
+  border: 8px solid silver;
   padding: 16px;
   border-radius: 8px;
+  position: relative;
+  z-index: 1;
+  color: whitesmoke;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.276);
 }
 
 .card * {
   margin-bottom: 8px;
   text-transform: capitalize;
+}
+
+.card .deleteBtn {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  transform: translate(35%, -35%);
+  border: 1px solid black;
+  background: transparent;
+  padding: 0;
+  border-radius: 50%;
+  height: 24px;
+  width: 24px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .stats {
@@ -62,7 +149,10 @@
   flex-direction: column;
   justify-content: flex-end;
   background: whitesmoke;
-  padding: 24px 8px;
+  padding: 24px;
+  position: relative;
+  transform: translateX(-12px) translateY(-4px);
+  border-radius: 0 8px 8px 0;
 }
 
 .stats > progress {
@@ -99,4 +189,10 @@
   display: flex;
   justify-content: space-between;
   justify-self: flex-end;
+}
+
+/*  */
+.winner {
+  background: green;
+  color: red;
 }
