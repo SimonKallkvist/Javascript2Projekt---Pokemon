@@ -35,13 +35,26 @@ class Pokemon {
 
     // filtering all thge stats
     let filterdStats = [];
+    let filterdObject = {};
     for (i = 0; i < stats[0].length; i++) {
       if (stats[0][i].base_stat > stats[1][i].base_stat) {
-        filterdStats.push(stats[0][i].base_stat);
+        filterdObject = {
+          name: stats[0][i].stat.name,
+          value: stats[0][i].base_stat,
+        };
+        filterdStats.push(filterdObject);
+        // filterdStats.push(stats[0][i].base_stat);
       } else if (stats[0][i].base_stat < stats[1][i].base_stat) {
-        filterdStats.push(stats[1][i].base_stat);
+        filterdObject = {
+          name: stats[1][i].stat.name,
+          value: stats[1][i].base_stat,
+        };
+        filterdStats.push(filterdObject);
+        // filterdStats.push(stats[1][i].base_stat);
       }
     }
+
+    console.log(filterdStats);
 
     // nesting loops too find matching values, and adding a class to the matches
     let statDivs = document.querySelectorAll('.stats');
@@ -49,7 +62,26 @@ class Pokemon {
     statDivs.forEach((div) => {
       div.childNodes.forEach((node) => {
         filterdStats.forEach((stat) => {
-          if (node.innerHTML.includes(stat)) {
+          if (node.innerHTML.includes(stat.name)) {
+            if (node.innerHTML.includes(stat.value)) {
+              console.log(node.innerHTML, '/', stat.name, '/', stat.value);
+              node.classList.add('winner');
+            }
+          }
+        });
+      });
+    });
+
+    // comparing height and weight
+    let measurmentsList = [];
+    measurmentsList.push(Math.max(pokeHolder[0].weight, pokeHolder[1].weight));
+    measurmentsList.push(Math.max(pokeHolder[0].height, pokeHolder[1].height));
+    let measurmentsDiv = document.querySelectorAll('.measurments');
+
+    measurmentsDiv.forEach((div) => {
+      div.childNodes.forEach((node) => {
+        measurmentsList.forEach((item) => {
+          if (node.innerHTML.includes(item)) {
             node.classList.add('winner');
           }
         });
@@ -101,6 +133,7 @@ let gatherPokeInfo = async (pokemonURL) => {
     renderPokemon(pokemon);
   });
   addCompareBtn();
+  addBattleBtn();
 };
 
 // listen for change on the pokemon list, get the url associated and send to gatherPokeInfo()
@@ -206,9 +239,9 @@ let renderPokemon = (pokemon) => {
   measurments.classList.add('measurments');
 
   let height = document.createElement('p');
-  height.innerText = 'Height: ' + pokemon.height + ' inches';
+  height.innerText = 'Height: ' + pokemon.height + ' dm';
   let weight = document.createElement('p');
-  weight.innerText = 'Weight: ' + pokemon.weight + ' pounds';
+  weight.innerText = 'Weight: ' + pokemon.weight + ' kg';
 
   measurments.append(height, weight);
 
@@ -223,10 +256,10 @@ let renderPokemon = (pokemon) => {
   pokemon.stats.forEach((stat) => {
     let label = document.createElement('label');
     label.setAttribute('for', `${stat.stat.name}`);
-    label.innerText = stat.stat.name + ': ' + stat.base_stat + ' / 200';
+    label.innerText = stat.stat.name + ': ' + stat.base_stat;
     let progress = document.createElement('progress');
     progress.value = stat.base_stat;
-    progress.max = '200';
+    progress.max = '150';
     progress.id = stat.stat.name;
     stats.append(label, progress);
   });
@@ -254,6 +287,7 @@ let deleteCard = (pokemon) => {
   console.log(pokeHolder);
   clearTheDOM();
   addCompareBtn();
+  addBattleBtn();
   gatherPokeInfo();
 };
 
@@ -275,6 +309,214 @@ let addCompareBtn = () => {
       compareBtn.remove();
     }
   }
+};
+
+let addBattleBtn = () => {
+  let battleBtn = document.querySelector('.battleBtn');
+  if (pokeHolder.length === 2) {
+    if (!battleBtn && pokemonContainer.innerHTML) {
+      battleBtn = document.createElement('button');
+      battleBtn.classList.add('btn', 'battleBtn');
+      battleBtn.innerText = 'BATTLE';
+      battleBtn.addEventListener('click', () => {
+        // Pokemon.BattlePokemon();
+        // alert('battle on!');
+        battleOn(battleBtn);
+      });
+      container.append(battleBtn);
+    }
+  } else {
+    if (battleBtn) {
+      battleBtn.remove();
+    }
+  }
+};
+
+let battleOn = (battleBtn) => {
+  pokemonContainer.classList.add('fadeToBlack');
+  setTimeout(() => {
+    pokemonContainer.innerHTML = '';
+    pokemonContainer.classList.remove('fadeToBlack');
+    battleBtn.remove();
+    revealFighters();
+  }, 1700);
+};
+
+let revealFighters = () => {
+  setBattleTitle();
+
+  pokeHolder.forEach((pokemon) => {
+    let figtingPoke = document.createElement('div');
+    figtingPoke.classList.add('figtingPoke');
+
+    let pokeName = document.createElement('h2');
+    pokeName.innerText = pokemon.name;
+
+    let hpLabel = document.createElement('label');
+    hpLabel.setAttribute('for', `${pokemon.name}`);
+    hpLabel.innerText = `${pokemon.stats[0].base_stat} HP`;
+
+    let hpProgress = document.createElement('progress');
+    hpProgress.value = pokemon.stats[0].base_stat;
+    hpProgress.max = pokemon.stats[0].base_stat;
+    hpProgress.id = pokemon.name;
+    hpProgress.style.flexGrow = '1';
+
+    let pokeImage = document.createElement('img');
+    pokeImage.classList.add('fighterImg');
+    pokeImage.src = `${pokemon.imageUrl}`;
+
+    figtingPoke.append(pokeImage, pokeName, hpLabel, hpProgress);
+    pokemonContainer.append(figtingPoke);
+  });
+
+  let battleProgress = document.createElement('div');
+  battleProgress.classList.add('battleProgress');
+  let beginBattle = document.createElement('button');
+  beginBattle.classList.add('btn', 'battleBtn');
+  beginBattle.innerText = 'Begin battle!';
+  beginBattle.addEventListener('click', () => {
+    beginBattle.remove();
+    beginBattleSequence(battleProgress);
+  });
+  battleProgress.append(beginBattle);
+  pokemonContainer.append(battleProgress);
+};
+
+let beginBattleSequence = (battleProgress) => {
+  //   console.log('Battle!');
+
+  let fighter1 = document.querySelector(`#${pokeHolder[0].name}`);
+  let fighter2 = document.querySelector(`#${pokeHolder[1].name}`);
+  console.log(fighter1, fighter2);
+
+  if (fighter1.value > 0 && fighter2.value > 0) {
+    calculateDmg(fighter1, fighter2, battleProgress);
+  } else {
+    alert('battle over');
+  }
+};
+let round = 0;
+
+let calculateDmg = (fighter1, fighter2, battleProgress) => {
+  if (round <= 0) {
+    if (pokeHolder[0].stats[5].base_stat > pokeHolder[1].stats[5].base_stat) {
+      fighter1.turn = true;
+      fighter2.turn = false;
+      round++;
+    } else {
+      fighter2.turn = true;
+      fighter1.turn = false;
+      round++;
+    }
+    console.log(fighter1.turn, round);
+  }
+  let nextTurn = document.createElement('button');
+  nextTurn.innerText = 'Next turn';
+  nextTurn.classList.add('btn');
+  battleProgress.append(nextTurn);
+  nextTurn.addEventListener('click', () => {
+    nextRound(fighter1, fighter2, battleProgress);
+    nextTurn.remove();
+    // battleProgress.innerHTML = '';
+  });
+};
+
+let nextRound = (fighter1, fighter2, battleProgress) => {
+  if (fighter1.turn) {
+    let p = document.createElement('p');
+    let attack =
+      pokeHolder[0].stats[1].base_stat + pokeHolder[0].stats[3].base_stat;
+    let defense =
+      pokeHolder[1].stats[2].base_stat + pokeHolder[1].stats[4].base_stat;
+    let dmg = Math.round((attack - defense) * 0.8);
+    if (dmg < 10) {
+      dmg = 10; // Minimum damage
+    }
+    fighter2.value -= dmg;
+    p.innerText = `${pokeHolder[1].name} received ${dmg} damage! from ${pokeHolder[0].name}s ${pokeHolder[0].move[0].move.name}`;
+    battleProgress.append(p);
+    fighter1.turn = false;
+    fighter2.turn = true;
+  } else if (fighter2.turn) {
+    let p = document.createElement('p');
+    let attack =
+      pokeHolder[1].stats[1].base_stat + pokeHolder[1].stats[3].base_stat;
+    let defense =
+      pokeHolder[0].stats[2].base_stat + pokeHolder[0].stats[4].base_stat;
+    let dmg = Math.round((attack - defense) * 0.8);
+    if (dmg < 10) {
+      dmg = 10; // Minimum damage
+    }
+    fighter1.value -= dmg;
+    p.innerText = `${pokeHolder[0].name} received ${dmg} damage! from ${pokeHolder[1].name}s ${pokeHolder[1].moves[0].move.name}`;
+    battleProgress.append(p);
+    fighter1.turn = true;
+    fighter2.turn = false;
+  }
+  if (fighter1.value <= 0 || fighter2.value <= 0) {
+    alert('Battle over');
+  } else {
+    calculateDmg(fighter1, fighter2, battleProgress);
+    battleProgress.innerHTML = '';
+  }
+};
+
+// let nextRound = (fighter1, fighter2, battleProgress) => {
+//   console.log(fighter1, fighter2);
+//   if (fighter1.turn == true) {
+//     alert(`it is ${pokeHolder[0].name}s turn`);
+//     let p = document.createElement('p');
+//     let attack =
+//       pokeHolder[0].stats[1].base_stat + pokeHolder[0].stats[3].base_stat;
+//     let defense =
+//       pokeHolder[1].stats[2].base_stat + pokeHolder[1].stats[4].base_stat;
+//     let dmg = Math.round((attack - defense) * 0.8);
+//     if (dmg > 10) {
+//       fighter2.value -= dmg;
+//     } else {
+//       fighter2.value -= 10;
+//       dmg = 10;
+//     }
+//     p.innerText = `${pokeHolder[1].name} used ${pokeHolder[1].moves[0].move.name} with a damage of ${dmg}!`;
+//     battleProgress.append(p);
+//     fighter2.turn = true;
+//     fighter1.turn = false;
+//   } else if (fighter2.turn == true) {
+//     alert(`it is ${pokeHolder[1].name}s turn`);
+
+//     let p = document.createElement('p');
+//     let attack =
+//       pokeHolder[1].stats[1].base_stat + pokeHolder[1].stats[3].base_stat;
+//     let defense =
+//       pokeHolder[0].stats[2].base_stat + pokeHolder[0].stats[4].base_stat;
+//     let dmg = Math.round((attack - defense) * 0.8);
+//     if (dmg > 10) {
+//       fighter2.value -= dmg;
+//     } else {
+//       fighter2.value -= 10;
+//       dmg = 10;
+//     }
+//     p.innerText = `${pokeHolder[0].name} used ${pokeHolder[0].moves[0].move.name} with a damage of ${dmg}!`;
+//     battleProgress.append(p);
+
+//     fighter1.turn = true;
+//     fighter2.turn = false;
+//   }
+//   calculateDmg(fighter1, fighter2, battleProgress);
+// };
+
+let setBattleTitle = () => {
+  let battleTitle = document.createElement('h2');
+  battleTitle.innerText = 'TIME TO BATTLE!';
+  battleTitle.classList.add('battleTitle');
+  setTimeout(() => {
+    battleTitle.classList.add('fadeToBlack');
+  }, 1000);
+  setTimeout(() => {
+    battleTitle.remove();
+  }, 1000);
+  pokemonContainer.append(battleTitle);
 };
 
 let clearTheDOM = () => {
