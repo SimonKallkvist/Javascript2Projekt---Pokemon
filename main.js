@@ -7,6 +7,9 @@ pokemonContainer.classList.add('pokemonContainer');
 
 let initialSelect = document.createElement('select');
 
+let round = 0;
+let fightOver = false;
+
 let pokeHolder = [];
 
 class Pokemon {
@@ -93,6 +96,7 @@ class Pokemon {
 // Function for calling api and gettting info
 let getData = async (url) => {
   let response = await axios.get(url);
+  console.log(response.data);
   return response.data;
 };
 
@@ -151,7 +155,7 @@ initialSelect.addEventListener('change', () => {
 let createPokeInstance = (pokemon) => {
   let pokeInstance = new Pokemon(
     pokemon.species.name,
-    pokemon.sprites.front_default,
+    pokemon.sprites.other['official-artwork'].front_default,
     pokemon.types,
     pokemon.weight,
     pokemon.height,
@@ -321,6 +325,7 @@ let addBattleBtn = () => {
       battleBtn.addEventListener('click', () => {
         // Pokemon.BattlePokemon();
         // alert('battle on!');
+        fightOver = false;
         battleOn(battleBtn);
       });
       container.append(battleBtn);
@@ -373,7 +378,7 @@ let revealFighters = () => {
   let battleProgress = document.createElement('div');
   battleProgress.classList.add('battleProgress');
   let beginBattle = document.createElement('button');
-  beginBattle.classList.add('btn', 'battleBtn');
+  beginBattle.classList.add('btn');
   beginBattle.innerText = 'Begin battle!';
   beginBattle.addEventListener('click', () => {
     beginBattle.remove();
@@ -388,15 +393,11 @@ let beginBattleSequence = (battleProgress) => {
 
   let fighter1 = document.querySelector(`#${pokeHolder[0].name}`);
   let fighter2 = document.querySelector(`#${pokeHolder[1].name}`);
+  round = 0;
   console.log(fighter1, fighter2);
 
-  if (fighter1.value > 0 && fighter2.value > 0) {
-    calculateDmg(fighter1, fighter2, battleProgress);
-  } else {
-    alert('battle over');
-  }
+  calculateDmg(fighter1, fighter2, battleProgress);
 };
-let round = 0;
 
 let calculateDmg = (fighter1, fighter2, battleProgress) => {
   if (round <= 0) {
@@ -411,100 +412,86 @@ let calculateDmg = (fighter1, fighter2, battleProgress) => {
     }
     console.log(fighter1.turn, round);
   }
-  let nextTurn = document.createElement('button');
-  nextTurn.innerText = 'Next turn';
-  nextTurn.classList.add('btn');
-  battleProgress.append(nextTurn);
-  nextTurn.addEventListener('click', () => {
-    nextRound(fighter1, fighter2, battleProgress);
-    nextTurn.remove();
-    // battleProgress.innerHTML = '';
-  });
-};
-
-let nextRound = (fighter1, fighter2, battleProgress) => {
-  if (fighter1.turn) {
-    let p = document.createElement('p');
-    let attack =
-      pokeHolder[0].stats[1].base_stat + pokeHolder[0].stats[3].base_stat;
-    let defense =
-      pokeHolder[1].stats[2].base_stat + pokeHolder[1].stats[4].base_stat;
-    let dmg = Math.round((attack - defense) * 0.8);
-    if (dmg < 10) {
-      dmg = 10; // Minimum damage
-    }
-    fighter2.value -= dmg;
-    p.innerText = `${pokeHolder[1].name} received ${dmg} damage! from ${pokeHolder[0].name}s ${pokeHolder[0].move[0].move.name}`;
-    battleProgress.append(p);
-    fighter1.turn = false;
-    fighter2.turn = true;
-  } else if (fighter2.turn) {
-    let p = document.createElement('p');
-    let attack =
-      pokeHolder[1].stats[1].base_stat + pokeHolder[1].stats[3].base_stat;
-    let defense =
-      pokeHolder[0].stats[2].base_stat + pokeHolder[0].stats[4].base_stat;
-    let dmg = Math.round((attack - defense) * 0.8);
-    if (dmg < 10) {
-      dmg = 10; // Minimum damage
-    }
-    fighter1.value -= dmg;
-    p.innerText = `${pokeHolder[0].name} received ${dmg} damage! from ${pokeHolder[1].name}s ${pokeHolder[1].moves[0].move.name}`;
-    battleProgress.append(p);
-    fighter1.turn = true;
-    fighter2.turn = false;
-  }
-  if (fighter1.value <= 0 || fighter2.value <= 0) {
-    alert('Battle over');
+  if (!fightOver) {
+    let nextTurn = document.createElement('button');
+    nextTurn.innerText = 'Next turn';
+    nextTurn.classList.add('btn');
+    battleProgress.append(nextTurn);
+    nextTurn.addEventListener('click', () => {
+      nextRound(fighter1, fighter2, battleProgress, nextTurn);
+      // battleProgress.innerHTML = '';
+    });
   } else {
-    calculateDmg(fighter1, fighter2, battleProgress);
-    battleProgress.innerHTML = '';
+    battleOver();
   }
 };
 
-// let nextRound = (fighter1, fighter2, battleProgress) => {
-//   console.log(fighter1, fighter2);
-//   if (fighter1.turn == true) {
-//     alert(`it is ${pokeHolder[0].name}s turn`);
-//     let p = document.createElement('p');
-//     let attack =
-//       pokeHolder[0].stats[1].base_stat + pokeHolder[0].stats[3].base_stat;
-//     let defense =
-//       pokeHolder[1].stats[2].base_stat + pokeHolder[1].stats[4].base_stat;
-//     let dmg = Math.round((attack - defense) * 0.8);
-//     if (dmg > 10) {
-//       fighter2.value -= dmg;
-//     } else {
-//       fighter2.value -= 10;
-//       dmg = 10;
-//     }
-//     p.innerText = `${pokeHolder[1].name} used ${pokeHolder[1].moves[0].move.name} with a damage of ${dmg}!`;
-//     battleProgress.append(p);
-//     fighter2.turn = true;
-//     fighter1.turn = false;
-//   } else if (fighter2.turn == true) {
-//     alert(`it is ${pokeHolder[1].name}s turn`);
+let nextRound = (fighter1, fighter2, battleProgress, nextTurn) => {
+  battleProgress.innerHTML = '';
+  nextTurn.remove();
 
-//     let p = document.createElement('p');
-//     let attack =
-//       pokeHolder[1].stats[1].base_stat + pokeHolder[1].stats[3].base_stat;
-//     let defense =
-//       pokeHolder[0].stats[2].base_stat + pokeHolder[0].stats[4].base_stat;
-//     let dmg = Math.round((attack - defense) * 0.8);
-//     if (dmg > 10) {
-//       fighter2.value -= dmg;
-//     } else {
-//       fighter2.value -= 10;
-//       dmg = 10;
-//     }
-//     p.innerText = `${pokeHolder[0].name} used ${pokeHolder[0].moves[0].move.name} with a damage of ${dmg}!`;
-//     battleProgress.append(p);
+  let winnerPoke;
+  if (fighter1.value > 0 && fighter2.value > 0) {
+    if (fighter1.turn) {
+      let p = document.createElement('p');
+      let attack =
+        pokeHolder[0].stats[1].base_stat + pokeHolder[0].stats[3].base_stat;
+      let defense =
+        pokeHolder[1].stats[2].base_stat + pokeHolder[1].stats[4].base_stat;
+      let dmg = Math.round((attack - defense) * 0.8);
+      if (dmg < 10) {
+        dmg = 10; // Minimum damage
+      }
+      fighter2.value -= dmg;
+      p.innerText = `${pokeHolder[1].name} received ${dmg} damage! From ${pokeHolder[0].name}s ${pokeHolder[0].moves[0].move.name}`;
+      battleProgress.append(p);
+      fighter1.turn = false;
+      fighter2.turn = true;
+    } else if (fighter2.turn) {
+      let p = document.createElement('p');
+      let attack =
+        pokeHolder[1].stats[1].base_stat + pokeHolder[1].stats[3].base_stat;
+      let defense =
+        pokeHolder[0].stats[2].base_stat + pokeHolder[0].stats[4].base_stat;
+      let dmg = Math.round((attack - defense) * 0.8);
+      if (dmg < 10) {
+        dmg = 10; // Minimum damage
+      }
+      fighter1.value -= dmg;
+      p.innerText = `${pokeHolder[0].name} received ${dmg} damage! From ${pokeHolder[1].name}s ${pokeHolder[1].moves[0].move.name}`;
+      battleProgress.append(p);
+      fighter1.turn = true;
+      fighter2.turn = false;
+    }
 
-//     fighter1.turn = true;
-//     fighter2.turn = false;
-//   }
-//   calculateDmg(fighter1, fighter2, battleProgress);
-// };
+    calculateDmg(fighter1, fighter2, battleProgress);
+  } else {
+    if (fighter1.value <= 0) {
+      winnerPoke = pokeHolder[1].name;
+    } else if (fighter2.value <= 0) {
+      winnerPoke = pokeHolder[0].name;
+    }
+    battleOver(battleProgress, winnerPoke);
+    fightOver = true;
+  }
+};
+
+let battleOver = (battleProgress, winnerPoke) => {
+  // battleProgress.innerHTML = '';
+  // console.log(battleProgress.childNodes);
+  console.log(winnerPoke);
+  let doneBtn = document.createElement('button');
+  doneBtn.classList.add('btn');
+  doneBtn.innerText = 'Done new Pokemon Plz';
+  doneBtn.addEventListener('click', () => {
+    clearTheDOM();
+    pokeHolder.forEach((pokemon) => renderPokemon(pokemon));
+    addCompareBtn();
+  });
+  let winnerText = document.createElement('p');
+  winnerText.innerText = `after a long harsh battle with blood, sweat and petrol ${winnerPoke} finally prevailed and tore the head of its rival. Ate its liver with a prestine bottle of chianti. Wiping its buttocks on the fallen soliders hair.`;
+  battleProgress.append(winnerText, doneBtn);
+};
 
 let setBattleTitle = () => {
   let battleTitle = document.createElement('h2');
