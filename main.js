@@ -116,6 +116,7 @@ let renderSelect = async (pokeListPromise) => {
     initialSelect.append(option);
   });
   initialSelect.style.textTransform = 'capitalize';
+  initialSelect.style.padding = '4px 8px';
 
   container.append(initialSelect);
 };
